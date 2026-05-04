@@ -2,7 +2,7 @@ import { ACTION_DEFS, executeProgram } from '../utils/BlocklyConfig.js';
 
 // Elemental action tuning constants
 const ICE_FREEZE_DURATION  = 3;    // seconds the freeze lasts
-const ICE_FREEZE_RATE_MULT = 0.3;  // enemy chargeRate reduced to 30 % (70 % slow)
+const ICE_FREEZE_RATE_MULT = 0.3;  // enemy chargeRate reduced to 30% of base (70% reduction)
 const FIRE_BURN_DURATION   = 4;    // seconds the burn lasts
 const FIRE_BURN_DPS_MULT   = 0.15; // burn deals this fraction of hero.atk per second
 const THUNDER_DMG_MULT     = 1.8;  // damage multiplier for thunder strike

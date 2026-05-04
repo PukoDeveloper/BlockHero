@@ -106,7 +106,7 @@ export class Enemy {
 
   /** Apply a burn-over-time effect. Refreshes duration/dps; preserves accumulated partial damage. */
   applyBurn(duration, dps) {
-    if (!this.isBurning) this._burnAccum = 0;  // only reset accumulator on fresh application
+    if (!this.isBurning) this._burnAccum = 0;  // reset accumulator only if not already burning (preserve on re-application)
     this.isBurning = true;
     this.burnTimer = duration;
     this.burnDps   = dps;
