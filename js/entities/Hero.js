@@ -70,10 +70,10 @@ export class Hero {
     return executeProgram(this.program, () => ({
       heroHp:      hero.hp,
       heroMaxHp:   hero.maxHp,
-      heroHpPct:   (hero.hp / hero.maxHp) * 100,
+      heroHpPct:   hero.maxHp > 0 ? (hero.hp / hero.maxHp) * 100 : 0,
       enemyHp:     hero._currentEnemy?.hp     ?? 0,
       enemyMaxHp:  hero._currentEnemy?.maxHp  ?? 1,
-      enemyHpPct:  hero._currentEnemy
+      enemyHpPct:  (hero._currentEnemy && hero._currentEnemy.maxHp > 0)
                      ? (hero._currentEnemy.hp / hero._currentEnemy.maxHp) * 100
                      : 100,
     }));
