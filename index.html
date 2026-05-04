@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>BlockHero 積木英雄</title>
+  <link rel="stylesheet" href="css/style.css">
+  <!-- Pixi.js v7 – rendering engine
+       NOTE: For production deployments add integrity="sha384-..." crossorigin="anonymous"
+             after computing the hash of the exact CDN file, e.g. via:
+             openssl dgst -sha384 -binary <file> | openssl base64 -A  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
+  <!-- Blockly v9 – visual block programming
+       NOTE: Same SRI recommendation as above. -->
+  <script src="https://unpkg.com/blockly@9.3.3/blockly.min.js"></script>
+</head>
+<body>
+  <div id="game-container">
+
+    <!-- ===== Title Screen ===== -->
+    <div id="title-screen" class="screen">
+      <canvas id="title-canvas"></canvas>
+      <div id="title-ui">
+        <div id="title-logo">
+          <h1 id="game-title">BlockHero</h1>
+          <p id="game-subtitle">積 木 英 雄</p>
+        </div>
+        <div id="title-buttons">
+          <button id="btn-start" class="btn-primary">⚔️ 開始冒險</button>
+          <button id="btn-edit-code" class="btn-secondary">🧩 編輯代碼</button>
+        </div>
+        <p id="title-hint">使用 Blockly 積木設計英雄行動，挑戰無盡波次的敵人！</p>
+      </div>
+    </div>
+
+    <!-- ===== Blockly Scene ===== -->
+    <div id="blockly-screen" class="screen">
+      <div id="blockly-header">
+        <h2>🧩 積木代碼編輯器</h2>
+        <div id="blockly-actions">
+          <button id="btn-save-code" class="btn-secondary">💾 儲存</button>
+          <button id="btn-clear-code" class="btn-danger">🗑️ 清除</button>
+          <button id="btn-back-to-title" class="btn-secondary">← 返回</button>
+          <button id="btn-go-battle" class="btn-primary">⚔️ 進入戰鬥</button>
+        </div>
+      </div>
+      <div id="blockly-main">
+        <div id="blocklyDiv"></div>
+      </div>
+      <div id="blockly-preview-bar">
+        <span id="preview-label">行動順序：</span>
+        <div id="action-preview-list"></div>
+        <span id="preview-hint">（戰鬥時循環執行）</span>
+      </div>
+    </div>
+
+    <!-- ===== Battle Screen ===== -->
+    <div id="battle-screen" class="screen">
+      <canvas id="battle-canvas"></canvas>
+      <div id="battle-ui">
+
+        <div id="wave-bar">
+          <span id="wave-number">第 1 波</span>
+          <span id="score-display">得分：0</span>
+        </div>
+
+        <div id="combatants-row">
+          <!-- Hero status -->
+          <div id="hero-status" class="combatant-panel">
+            <div class="panel-title">🗡️ 英雄</div>
+            <div class="bar-row">
+              <span class="bar-label">HP</span>
+              <div class="bar-track">
+                <div id="hero-hp-bar" class="bar-fill hp-hero"></div>
+              </div>
+              <span id="hero-hp-text" class="bar-value">100/100</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">氣</span>
+              <div class="bar-track">
+                <div id="hero-charge-bar" class="bar-fill charge-hero"></div>
+              </div>
+            </div>
+            <div id="hero-action-label" class="action-label"></div>
+          </div>
+
+          <!-- VS -->
+          <div id="vs-divider">VS</div>
+
+          <!-- Enemy status -->
+          <div id="enemy-status" class="combatant-panel">
+            <div id="enemy-panel-title" class="panel-title">👺 哥布林</div>
+            <div class="bar-row">
+              <span class="bar-label">HP</span>
+              <div class="bar-track">
+                <div id="enemy-hp-bar" class="bar-fill hp-enemy"></div>
+              </div>
+              <span id="enemy-hp-text" class="bar-value">50/50</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">氣</span>
+              <div class="bar-track">
+                <div id="enemy-charge-bar" class="bar-fill charge-enemy"></div>
+              </div>
+            </div>
+            <div id="enemy-action-label" class="action-label"></div>
+          </div>
+        </div>
+
+        <!-- Battle log -->
+        <div id="battle-log">
+          <div id="battle-log-inner"></div>
+        </div>
+
+        <!-- Controls -->
+        <div id="battle-controls">
+          <button id="btn-pause" class="btn-secondary">⏸ 暫停</button>
+          <button id="btn-forfeit" class="btn-danger">✗ 放棄</button>
+        </div>
+      </div>
+
+      <!-- Game Over overlay -->
+      <div id="gameover-overlay" class="overlay hidden">
+        <div class="overlay-box">
+          <h2 id="gameover-title">遊戲結束</h2>
+          <p>挑戰至第 <strong id="go-wave">1</strong> 波</p>
+          <p>總得分：<strong id="go-score">0</strong></p>
+          <div class="overlay-buttons">
+            <button id="btn-retry" class="btn-primary">🔄 再來一次</button>
+            <button id="btn-edit-post" class="btn-secondary">🧩 改進代碼</button>
+            <button id="btn-to-title" class="btn-secondary">🏠 標題畫面</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end #game-container -->
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
