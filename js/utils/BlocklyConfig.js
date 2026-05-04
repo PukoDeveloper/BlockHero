@@ -1,7 +1,7 @@
 /**
  * BlocklyConfig.js
  *   - Custom hero-action block definitions
- *   - HP value block definitions
+ *   - Character stat value block definitions
  *   - Toolbox XML
  *   - Helpers to extract the action program (AST) from the workspace
  */
@@ -54,6 +54,7 @@ const MAX_REPEAT_COUNT = 20;
 /**
  * HP value block type → runtime value expression type.
  * These blocks output a Number and can be used as condition inputs.
+ * Kept for backward compatibility with saved workspace XML.
  */
 const HP_BLOCK_MAP = {
   hero_get_hp:     'hero_hp',
@@ -63,6 +64,22 @@ const HP_BLOCK_MAP = {
   enemy_get_hp_pct:'enemy_hp_pct',
   enemy_get_max_hp:'enemy_max_hp',
 };
+
+/**
+ * Combined character-stat block: maps (CHAR, STAT) dropdown values to
+ * the runtime value-expression type string.
+ */
+function _charStatToValueType(char, stat) {
+  const prefix = char === 'HERO' ? 'hero' : 'enemy';
+  const suffixMap = {
+    HP:     'hp',
+    HP_PCT: 'hp_pct',
+    MAX_HP: 'max_hp',
+    ATK:    'atk',
+    DEF:    'def',
+  };
+  return `${prefix}_${suffixMap[stat] || 'hp'}`;
+}
 
 /* ------------------------------------------------------------------
    Toolbox XML (Blockly v9 – XML format still supported)
@@ -81,12 +98,14 @@ export const TOOLBOX_XML = `
     <block type="hero_heal"></block>
   </category>
   <category name="🔢 數值" colour="160">
-    <block type="hero_get_hp"></block>
-    <block type="hero_get_hp_pct"></block>
-    <block type="hero_get_max_hp"></block>
-    <block type="enemy_get_hp"></block>
-    <block type="enemy_get_hp_pct"></block>
-    <block type="enemy_get_max_hp"></block>
+    <block type="get_character_stat">
+      <field name="CHAR">HERO</field>
+      <field name="STAT">HP_PCT</field>
+    </block>
+    <block type="get_character_stat">
+      <field name="CHAR">ENEMY</field>
+      <field name="STAT">HP_PCT</field>
+    </block>
     <block type="math_number"><field name="NUM">50</field></block>
   </category>
   <category name="🔁 流程控制" colour="120">
@@ -106,7 +125,10 @@ export const TOOLBOX_XML = `
     <block type="logic_compare">
       <field name="OP">LT</field>
       <value name="A">
-        <shadow type="hero_get_hp_pct"></shadow>
+        <shadow type="get_character_stat">
+          <field name="CHAR">HERO</field>
+          <field name="STAT">HP_PCT</field>
+        </shadow>
       </value>
       <value name="B">
         <shadow type="math_number"><field name="NUM">50</field></shadow>
@@ -115,7 +137,10 @@ export const TOOLBOX_XML = `
     <block type="logic_compare">
       <field name="OP">GT</field>
       <value name="A">
-        <shadow type="enemy_get_hp_pct"></shadow>
+        <shadow type="get_character_stat">
+          <field name="CHAR">ENEMY</field>
+          <field name="STAT">HP_PCT</field>
+        </shadow>
       </value>
       <value name="B">
         <shadow type="math_number"><field name="NUM">50</field></shadow>
@@ -166,7 +191,7 @@ export function defineCustomBlocks() {
     };
   }
 
-  // HP value blocks (output: Number)
+  // HP value blocks (output: Number) – kept for backward compatibility with saved workspaces
   const hpBlockDefs = [
     { type: 'hero_get_hp',     label: '🗡️ 英雄當前HP',   colour: 160, tip: '返回英雄當前血量' },
     { type: 'hero_get_hp_pct', label: '🗡️ 英雄HP百分比', colour: 160, tip: '返回英雄HP百分比（0–100）' },
@@ -186,6 +211,30 @@ export function defineCustomBlocks() {
       },
     };
   }
+
+  // Combined character-stat block: "取得 [英雄/敵人] 的 [屬性]"
+  Blockly.Blocks['get_character_stat'] = {
+    init() {
+      this.appendDummyInput()
+        .appendField('取得')
+        .appendField(new Blockly.FieldDropdown([
+          ['🗡️ 英雄', 'HERO'],
+          ['👺 敵人', 'ENEMY'],
+        ]), 'CHAR')
+        .appendField('的')
+        .appendField(new Blockly.FieldDropdown([
+          ['當前HP',  'HP'],
+          ['HP百分比', 'HP_PCT'],
+          ['最大HP',  'MAX_HP'],
+          ['攻擊力',  'ATK'],
+          ['防禦力',  'DEF'],
+        ]), 'STAT');
+      this.setOutput(true, 'Number');
+      this.setColour(160);
+      this.setTooltip('取得角色的屬性數值');
+      this.setHelpUrl('');
+    },
+  };
 }
 
 /* ------------------------------------------------------------------
@@ -204,7 +253,8 @@ export function defineCustomBlocks() {
    ValueExpr
    ─────────
    { type:'number', value }
-   { type:'hero_hp'|'hero_hp_pct'|'hero_max_hp'|'enemy_hp'|'enemy_hp_pct'|'enemy_max_hp' }
+   { type:'hero_hp'|'hero_hp_pct'|'hero_max_hp'|'hero_atk'|'hero_def'
+         |'enemy_hp'|'enemy_hp_pct'|'enemy_max_hp'|'enemy_atk'|'enemy_def' }
    ------------------------------------------------------------------ */
 
 function _evalValue(expr, ctx) {
@@ -214,9 +264,13 @@ function _evalValue(expr, ctx) {
     case 'hero_hp':      return ctx.heroHp;
     case 'hero_hp_pct':  return ctx.heroHpPct;
     case 'hero_max_hp':  return ctx.heroMaxHp;
+    case 'hero_atk':     return ctx.heroAtk;
+    case 'hero_def':     return ctx.heroDef;
     case 'enemy_hp':     return ctx.enemyHp;
     case 'enemy_hp_pct': return ctx.enemyHpPct;
     case 'enemy_max_hp': return ctx.enemyMaxHp;
+    case 'enemy_atk':    return ctx.enemyAtk;
+    case 'enemy_def':    return ctx.enemyDef;
     default: return 0;
   }
 }
@@ -267,6 +321,11 @@ function _parseValueFromBlock(block) {
   if (block.type === 'math_number') {
     return { type: 'number', value: parseFloat(block.getFieldValue('NUM')) || 0 };
   }
+  if (block.type === 'get_character_stat') {
+    const char = block.getFieldValue('CHAR') || 'HERO';
+    const stat = block.getFieldValue('STAT') || 'HP';
+    return { type: _charStatToValueType(char, stat) };
+  }
   if (HP_BLOCK_MAP[block.type]) {
     return { type: HP_BLOCK_MAP[block.type] };
   }
@@ -287,6 +346,13 @@ function _parseValueFromEl(el) {
   if (type === 'math_number') {
     const numEl = el.querySelector(':scope > field[name="NUM"]');
     return { type: 'number', value: parseFloat(numEl?.textContent || '0') || 0 };
+  }
+  if (type === 'get_character_stat') {
+    const charEl = el.querySelector(':scope > field[name="CHAR"]');
+    const statEl = el.querySelector(':scope > field[name="STAT"]');
+    const char = charEl?.textContent || 'HERO';
+    const stat = statEl?.textContent || 'HP';
+    return { type: _charStatToValueType(char, stat) };
   }
   if (HP_BLOCK_MAP[type]) {
     return { type: HP_BLOCK_MAP[type] };

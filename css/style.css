@@ -216,8 +216,8 @@ html, body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 8px;
-  gap: 6px;
+  padding: 6px;
+  gap: 4px;
   pointer-events: none;
 }
 
@@ -335,6 +335,7 @@ html, body {
 /* Battle log */
 #battle-log {
   flex: 1;
+  max-height: 30vh;
   background: var(--bg-panel);
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -384,6 +385,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-top: 10vh;
   z-index: 50;
   backdrop-filter: blur(4px);
 }
@@ -394,14 +396,14 @@ html, body {
   background: linear-gradient(135deg, #16213e, #0f3460);
   border: 1px solid rgba(233, 69, 96, 0.35);
   border-radius: 16px;
-  padding: 24px 24px;
+  padding: 20px 24px;
   text-align: center;
   max-width: 380px;
-  max-height: 85vh;
+  max-height: 75vh;
   width: 90%;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
   overflow-y: auto;
 }
