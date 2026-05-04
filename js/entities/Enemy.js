@@ -73,8 +73,8 @@ export class Enemy {
         this.chargeRate = this._baseChargeRate;
       }
     }
-    // Immunity timer counts down even while frozen so post-thaw immunity = FREEZE_IMMUNITY_DURATION - frozenDuration
-    if (this.freezeImmunityTimer > 0) {
+    // Immunity timer only counts down after the freeze has ended, giving the full immunity window post-thaw
+    if (!this.isFrozen && this.freezeImmunityTimer > 0) {
       this.freezeImmunityTimer -= dt;
       if (this.freezeImmunityTimer < 0) this.freezeImmunityTimer = 0;
     }
@@ -106,9 +106,9 @@ export class Enemy {
     return { burnDmg };
   }
 
-  /** Apply a freeze effect (slows chargeRate). Ignored while freeze immunity is active. */
+  /** Apply a freeze effect (slows chargeRate). Ignored while already frozen or during freeze immunity. */
   applyFreeze(duration, rateMult) {
-    if (this.freezeImmunityTimer > 0) return false;  // immune – can't be frozen again yet
+    if (this.isFrozen || this.freezeImmunityTimer > 0) return false;  // already frozen or immune
     this.isFrozen            = true;
     this.frozenTimer         = duration;
     this.freezeImmunityTimer = FREEZE_IMMUNITY_DURATION;
