@@ -1,5 +1,13 @@
 import { ACTION_DEFS, executeProgram } from '../utils/BlocklyConfig.js';
 
+// Elemental action tuning constants
+const ICE_FREEZE_DURATION  = 3;    // seconds the freeze lasts
+const ICE_FREEZE_RATE_MULT = 0.3;  // enemy chargeRate reduced to 30 % (70 % slow)
+const FIRE_BURN_DURATION   = 4;    // seconds the burn lasts
+const FIRE_BURN_DPS_MULT   = 0.15; // burn deals this fraction of hero.atk per second
+const THUNDER_DMG_MULT     = 1.8;  // damage multiplier for thunder strike
+const THUNDER_DEF_MULT     = 0.4;  // fraction of enemy.def that applies (60 % ignored)
+
 /**
  * Hero – player-controlled character.
  * Charge-to-action mechanic: charge fills over time; when it reaches
@@ -195,25 +203,25 @@ export class Hero {
       case 'hero_ice_attack': {
         const dmg = Math.max(1, this.atk - enemy.def);
         enemy.takeDamage(dmg);
-        enemy.applyFreeze?.(3, 0.3);
+        enemy.applyFreeze?.(ICE_FREEZE_DURATION, ICE_FREEZE_RATE_MULT);
         result.type    = 'damage';
         result.value   = dmg;
         result.element = 'ice';
-        result.message = `英雄冰凍打擊 ${enemy.name}，造成 ${dmg} 傷害並凍結 3 秒！`;
+        result.message = `英雄冰凍打擊 ${enemy.name}，造成 ${dmg} 傷害並凍結 ${ICE_FREEZE_DURATION} 秒！`;
         break;
       }
       case 'hero_fire_attack': {
         const dmg = Math.max(1, Math.floor(this.atk * 0.8) - enemy.def);
         enemy.takeDamage(dmg);
-        enemy.applyBurn?.(4, this.atk * 0.15);
+        enemy.applyBurn?.(FIRE_BURN_DURATION, this.atk * FIRE_BURN_DPS_MULT);
         result.type    = 'damage';
         result.value   = dmg;
         result.element = 'fire';
-        result.message = `英雄火焰攻擊 ${enemy.name}，造成 ${dmg} 傷害並點燃 4 秒！`;
+        result.message = `英雄火焰攻擊 ${enemy.name}，造成 ${dmg} 傷害並點燃 ${FIRE_BURN_DURATION} 秒！`;
         break;
       }
       case 'hero_thunder_attack': {
-        const dmg = Math.max(1, Math.floor(this.atk * 1.8) - Math.floor(enemy.def * 0.4));
+        const dmg = Math.max(1, Math.floor(this.atk * THUNDER_DMG_MULT) - Math.floor(enemy.def * THUNDER_DEF_MULT));
         enemy.takeDamage(dmg);
         result.type    = 'damage';
         result.value   = dmg;

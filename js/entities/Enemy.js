@@ -97,19 +97,19 @@ export class Enemy {
     return { burnDmg };
   }
 
-  /** Apply a freeze effect (slows chargeRate). */
+  /** Apply a freeze effect (slows chargeRate). Safe to call while already frozen. */
   applyFreeze(duration, rateMult) {
     this.isFrozen    = true;
     this.frozenTimer = duration;
     this.chargeRate  = this._baseChargeRate * rateMult;
   }
 
-  /** Apply a burn-over-time effect. */
+  /** Apply a burn-over-time effect. Refreshes duration/dps; preserves accumulated partial damage. */
   applyBurn(duration, dps) {
-    this.isBurning  = true;
-    this.burnTimer  = duration;
-    this.burnDps    = dps;
-    this._burnAccum = 0;
+    if (!this.isBurning) this._burnAccum = 0;  // only reset accumulator on fresh application
+    this.isBurning = true;
+    this.burnTimer = duration;
+    this.burnDps   = dps;
   }
 
   isCharged() { return this.currentCharge >= 100; }
