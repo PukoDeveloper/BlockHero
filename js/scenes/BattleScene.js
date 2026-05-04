@@ -246,6 +246,16 @@ export class BattleScene {
       g.drawCircle(ox, oy - S * 0.7, S * 0.9);
     }
 
+    // Elemental status glows
+    if (enemy.isFrozen) {
+      g.lineStyle(5, 0x88eeff, 0.55 + 0.35 * Math.sin(Date.now() / 300));
+      g.drawCircle(ox, oy - S * 0.7, S * 0.97);
+    }
+    if (enemy.isBurning) {
+      g.lineStyle(5, 0xff4500, 0.5 + 0.45 * Math.sin(Date.now() / 80));
+      g.drawCircle(ox, oy - S * 0.7, S * 0.97);
+    }
+
     g.lineStyle(0);
 
     // Legs
@@ -281,6 +291,20 @@ export class BattleScene {
     g.drawRect(ox + S * 0.6, oy - S * 0.95, 4 * scale, S * 0.6);
     g.drawRect(ox + S * 0.55, oy - S * 0.95, 18 * scale, 4 * scale);
     g.endFill();
+
+    // Elemental tint overlay (drawn over the body area)
+    if (enemy.isFrozen) {
+      g.lineStyle(0);
+      g.beginFill(0x88eeff, 0.22);
+      g.drawCircle(ox, oy - S * 0.7, S * 0.82);
+      g.endFill();
+    }
+    if (enemy.isBurning) {
+      g.lineStyle(0);
+      g.beginFill(0xff4500, 0.18);
+      g.drawCircle(ox, oy - S * 0.7, S * 0.82);
+      g.endFill();
+    }
   }
 
   /** Multiply RGB channels of a 0xRRGGBB colour by factor. */
@@ -401,7 +425,11 @@ export class BattleScene {
 
     // Only update enemy if it's alive and we're not between waves
     if (this.enemy.isAlive() && !this.spawning) {
-      this.enemy.update(dt);
+      const { burnDmg } = this.enemy.update(dt);
+      if (burnDmg > 0) {
+        this._log(`🔥 ${this.enemy.name} 受到燃燒傷害 ${burnDmg}！`, 'log-element');
+        this._spawnDmgNumber(this.app.screen.width * 0.78, this.app.screen.height * 0.45, burnDmg, 0xff6600);
+      }
     }
 
     // Hero action
@@ -409,11 +437,16 @@ export class BattleScene {
       const res = this.hero.executeAction(this.enemy);
       const cls = res.type === 'heal' ? 'log-heal'
                 : (res.type === 'defend' || res.type === 'speed_boost') ? 'log-buff'
+                : res.element ? 'log-element'
                 : 'log-hero';
       this._log(res.message, cls);
 
       if (res.type === 'damage') {
-        this._spawnDmgNumber(this.app.screen.width * 0.78, this.app.screen.height * 0.45, res.value, 0xff4444);
+        const dmgColor = res.element === 'ice'     ? 0x88eeff
+                       : res.element === 'fire'    ? 0xff6600
+                       : res.element === 'thunder' ? 0xffee00
+                       : 0xff4444;
+        this._spawnDmgNumber(this.app.screen.width * 0.78, this.app.screen.height * 0.45, res.value, dmgColor);
       } else if (res.type === 'heal') {
         this._spawnDmgNumber(this.app.screen.width * 0.22, this.app.screen.height * 0.45, res.value, 0x2ecc71, true);
       }
@@ -487,6 +520,12 @@ export class BattleScene {
     document.getElementById('enemy-charge-bar').style.width = this.enemy.getChargePct() + '%';
     document.getElementById('enemy-action-label').textContent =
       this.enemy.isCharged() ? '⚡ 即將攻擊！' : '';
+
+    // Enemy status effects
+    const enemyEffects = [];
+    if (this.enemy.isFrozen)  enemyEffects.push(`🧊 凍結中（${Math.ceil(this.enemy.frozenTimer)}s）`);
+    if (this.enemy.isBurning) enemyEffects.push(`🔥 燃燒中（${Math.ceil(this.enemy.burnTimer)}s）`);
+    document.getElementById('enemy-status-effects').textContent = enemyEffects.join('  ');
   }
 
   /* ================================================================

@@ -192,6 +192,35 @@ export class Hero {
         result.message = `英雄進入快速充能狀態！攻擊速度提升 2.5 倍，持續 ${duration} 秒！`;
         break;
       }
+      case 'hero_ice_attack': {
+        const dmg = Math.max(1, this.atk - enemy.def);
+        enemy.takeDamage(dmg);
+        enemy.applyFreeze?.(3, 0.3);
+        result.type    = 'damage';
+        result.value   = dmg;
+        result.element = 'ice';
+        result.message = `英雄冰凍打擊 ${enemy.name}，造成 ${dmg} 傷害並凍結 3 秒！`;
+        break;
+      }
+      case 'hero_fire_attack': {
+        const dmg = Math.max(1, Math.floor(this.atk * 0.8) - enemy.def);
+        enemy.takeDamage(dmg);
+        enemy.applyBurn?.(4, this.atk * 0.15);
+        result.type    = 'damage';
+        result.value   = dmg;
+        result.element = 'fire';
+        result.message = `英雄火焰攻擊 ${enemy.name}，造成 ${dmg} 傷害並點燃 4 秒！`;
+        break;
+      }
+      case 'hero_thunder_attack': {
+        const dmg = Math.max(1, Math.floor(this.atk * 1.8) - Math.floor(enemy.def * 0.4));
+        enemy.takeDamage(dmg);
+        result.type    = 'damage';
+        result.value   = dmg;
+        result.element = 'thunder';
+        result.message = `英雄雷電打擊 ${enemy.name}，穿透防禦造成 ${dmg} 傷害！`;
+        break;
+      }
       default:
         result.message = '英雄行動…';
     }

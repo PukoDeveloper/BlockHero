@@ -486,11 +486,15 @@ export class MultiplayerBattleScene {
       const res = this.myHero.executeAction(this.opponentProxy);
 
       if (res.type === 'damage') {
-        const cls = 'log-hero';
+        const dmgColor = res.element === 'ice'     ? 0x88eeff
+                       : res.element === 'fire'    ? 0xff6600
+                       : res.element === 'thunder' ? 0xffee00
+                       : 0xff4444;
+        const cls = res.element ? 'log-element' : 'log-hero';
         this._log(res.message, cls);
         this._spawnDmgNumber(
           this.app.screen.width * 0.78, this.app.screen.height * 0.45,
-          res.value, 0xff4444,
+          res.value, dmgColor,
         );
       } else if (res.type === 'heal') {
         this._log(res.message, 'log-heal');

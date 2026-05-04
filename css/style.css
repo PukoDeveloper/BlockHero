@@ -370,12 +370,13 @@ html, body {
   animation: fadeIn 0.3s ease;
 }
 
-.log-hero   { color: #5dade2; }
-.log-enemy  { color: #e74c3c; }
-.log-wave   { color: var(--accent-gold); font-weight: bold; }
-.log-system { color: var(--text-muted); }
-.log-heal   { color: var(--accent-green); }
-.log-buff   { color: #f39c12; }
+.log-hero    { color: #5dade2; }
+.log-enemy   { color: #e74c3c; }
+.log-wave    { color: var(--accent-gold); font-weight: bold; }
+.log-system  { color: var(--text-muted); }
+.log-heal    { color: var(--accent-green); }
+.log-buff    { color: #f39c12; }
+.log-element { color: #a29bfe; }
 
 /* Battle controls */
 #battle-controls {
