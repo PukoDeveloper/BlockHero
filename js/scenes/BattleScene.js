@@ -523,7 +523,8 @@ export class BattleScene {
 
     // Enemy status effects
     const enemyEffects = [];
-    if (this.enemy.isFrozen)  enemyEffects.push(`🧊 凍結中（${Math.ceil(this.enemy.frozenTimer)}s）`);
+    if (this.enemy.isFrozen)                        enemyEffects.push(`🧊 凍結中（${Math.ceil(this.enemy.frozenTimer)}s）`);
+    if ((this.enemy.freezeImmunityTimer ?? 0) > 0)  enemyEffects.push(`🛡️ 凍結免疫（${Math.ceil(this.enemy.freezeImmunityTimer)}s）`);
     if (this.enemy.isBurning) enemyEffects.push(`🔥 燃燒中（${Math.ceil(this.enemy.burnTimer)}s）`);
     document.getElementById('enemy-status-effects').textContent = enemyEffects.join('  ');
   }

@@ -13,6 +13,9 @@ const ENEMY_TYPES = [
   { name: '龍',   icon: '🐉', color: 0xe74c3c, baseHp: 280, baseAtk: 35, baseDef: 12, baseRate: 16 },
 ];
 
+/** After a freeze expires the enemy gains immunity for this many seconds. */
+const FREEZE_IMMUNITY_DURATION = 5;
+
 /** Per-wave scaling constants for enemy stat growth. */
 const HP_SCALE_PER_WAVE   = 0.30;
 const ATK_SCALE_PER_WAVE  = 0.18;
@@ -45,8 +48,9 @@ export class Enemy {
     this.currentCharge = 0;
 
     // Elemental status effects
-    this.isFrozen    = false;
-    this.frozenTimer = 0;
+    this.isFrozen           = false;
+    this.frozenTimer        = 0;
+    this.freezeImmunityTimer = 0;
 
     this.isBurning  = false;
     this.burnTimer  = 0;
@@ -65,9 +69,13 @@ export class Enemy {
     if (this.isFrozen) {
       this.frozenTimer -= dt;
       if (this.frozenTimer <= 0) {
-        this.isFrozen   = false;
-        this.chargeRate = this._baseChargeRate;
+        this.isFrozen            = false;
+        this.chargeRate          = this._baseChargeRate;
+        this.freezeImmunityTimer = FREEZE_IMMUNITY_DURATION;
       }
+    } else if (this.freezeImmunityTimer > 0) {
+      this.freezeImmunityTimer -= dt;
+      if (this.freezeImmunityTimer < 0) this.freezeImmunityTimer = 0;
     }
 
     // Burn: deal damage over time
@@ -97,11 +105,13 @@ export class Enemy {
     return { burnDmg };
   }
 
-  /** Apply a freeze effect (slows chargeRate). Safe to call while already frozen. */
+  /** Apply a freeze effect (slows chargeRate). Ignored while freeze immunity is active. */
   applyFreeze(duration, rateMult) {
+    if (this.freezeImmunityTimer > 0) return false;  // immune – can't be frozen again yet
     this.isFrozen    = true;
     this.frozenTimer = duration;
     this.chargeRate  = this._baseChargeRate * rateMult;
+    return true;
   }
 
   /** Apply a burn-over-time effect. Refreshes duration/dps; preserves accumulated partial damage. */

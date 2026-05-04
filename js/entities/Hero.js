@@ -203,11 +203,13 @@ export class Hero {
       case 'hero_ice_attack': {
         const dmg = Math.max(1, this.atk - enemy.def);
         enemy.takeDamage(dmg);
-        enemy.applyFreeze?.(ICE_FREEZE_DURATION, ICE_FREEZE_RATE_MULT);
+        const frozeApplied = enemy.applyFreeze?.(ICE_FREEZE_DURATION, ICE_FREEZE_RATE_MULT);
         result.type    = 'damage';
         result.value   = dmg;
         result.element = 'ice';
-        result.message = `英雄冰凍打擊 ${enemy.name}，造成 ${dmg} 傷害並凍結 ${ICE_FREEZE_DURATION} 秒！`;
+        result.message = frozeApplied === false
+          ? `英雄冰凍打擊 ${enemy.name}，造成 ${dmg} 傷害（敵人免疫凍結！）`
+          : `英雄冰凍打擊 ${enemy.name}，造成 ${dmg} 傷害並凍結 ${ICE_FREEZE_DURATION} 秒！`;
         break;
       }
       case 'hero_fire_attack': {
