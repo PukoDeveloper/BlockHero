@@ -119,6 +119,13 @@ export class TitleScene {
     document.getElementById('btn-edit-code').addEventListener('click', () => {
       this.game.goToBlockly();
     });
+    document.getElementById('btn-multiplayer').addEventListener('click', () => {
+      if (typeof Peer === 'undefined') {
+        alert('PeerJS 尚未載入，請確認網路連線後重試。');
+        return;
+      }
+      this.game.goToMpLobby();
+    });
   }
 
   /* ---- Lifecycle ---- */

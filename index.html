@@ -13,6 +13,8 @@
   <!-- Blockly v9 – visual block programming
        NOTE: Same SRI recommendation as above. -->
   <script src="https://unpkg.com/blockly@9.3.3/blockly.min.js"></script>
+  <!-- PeerJS v1.5.5 – WebRTC peer-to-peer data connections -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"></script>
 </head>
 <body>
   <div id="game-container">
@@ -28,6 +30,7 @@
         <div id="title-buttons">
           <button id="btn-start" class="btn-primary">⚔️ 開始冒險</button>
           <button id="btn-edit-code" class="btn-secondary">🧩 編輯代碼</button>
+          <button id="btn-multiplayer" class="btn-secondary">🌐 連線對戰</button>
         </div>
         <p id="title-hint">使用 Blockly 積木設計英雄行動，挑戰無盡波次的敵人！</p>
       </div>
@@ -129,6 +132,103 @@
             <button id="btn-retry" class="btn-primary">🔄 再來一次</button>
             <button id="btn-edit-post" class="btn-secondary">🧩 改進代碼</button>
             <button id="btn-to-title" class="btn-secondary">🏠 標題畫面</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Peer Lobby Screen ===== -->
+    <div id="peer-lobby-screen" class="screen">
+      <div id="lobby-ui">
+        <h2>🌐 雙人連線對戰</h2>
+
+        <div id="lobby-my-id-section">
+          <p>你的連線 ID（分享給對手）：</p>
+          <div id="lobby-my-id">正在取得…</div>
+          <button id="btn-copy-id" class="btn-secondary">📋 複製 ID</button>
+        </div>
+
+        <div id="lobby-connect-section">
+          <input id="lobby-peer-id-input" type="text" placeholder="輸入對手的連線 ID…" autocomplete="off" spellcheck="false">
+          <button id="btn-connect-peer" class="btn-primary">🔗 連線</button>
+        </div>
+
+        <div id="lobby-status">等待中…</div>
+
+        <div id="lobby-ready-section" class="hidden">
+          <button id="btn-start-mp" class="btn-primary">⚔️ 開始對戰</button>
+        </div>
+
+        <button id="btn-lobby-back" class="btn-secondary">← 返回標題</button>
+      </div>
+    </div>
+
+    <!-- ===== Multiplayer Battle Screen ===== -->
+    <div id="mp-battle-screen" class="screen">
+      <canvas id="mp-battle-canvas"></canvas>
+      <div id="mp-battle-ui">
+
+        <div id="mp-wave-bar">
+          <span id="mp-match-label">⚔️ 雙人對戰</span>
+        </div>
+
+        <div id="mp-combatants-row" class="combatants-row">
+          <div id="mp-hero-status" class="combatant-panel">
+            <div class="panel-title">🗡️ 我的英雄</div>
+            <div class="bar-row">
+              <span class="bar-label">HP</span>
+              <div class="bar-track">
+                <div id="mp-hero-hp-bar" class="bar-fill hp-hero"></div>
+              </div>
+              <span id="mp-hero-hp-text" class="bar-value">100/100</span>
+            </div>
+            <div class="bar-row">
+              <span class="bar-label">氣</span>
+              <div class="bar-track">
+                <div id="mp-hero-charge-bar" class="bar-fill charge-hero"></div>
+              </div>
+            </div>
+            <div id="mp-hero-action-label" class="action-label"></div>
+          </div>
+
+          <!-- VS -->
+          <div id="mp-vs-divider" class="vs-divider">VS</div>
+
+          <!-- Opponent status -->
+          <div id="mp-opp-status" class="combatant-panel">
+            <div class="panel-title">⚔️ 對手英雄</div>
+            <div class="bar-row">
+              <span class="bar-label">HP</span>
+              <div class="bar-track">
+                <div id="mp-opp-hp-bar" class="bar-fill hp-enemy"></div>
+              </div>
+              <span id="mp-opp-hp-text" class="bar-value">100/100</span>
+            </div>
+            <div id="mp-opp-action-label" class="action-label"></div>
+          </div>
+        </div>
+
+        <!-- Battle log -->
+        <div id="mp-battle-log">
+          <div id="mp-battle-log-inner"></div>
+        </div>
+
+        <!-- Controls -->
+        <div id="mp-battle-controls">
+          <button id="mp-btn-pause" class="btn-secondary">⏸ 暫停</button>
+          <button id="mp-btn-forfeit" class="btn-danger">✗ 放棄</button>
+        </div>
+      </div>
+
+      <!-- Result overlay -->
+      <div id="mp-result-overlay" class="overlay hidden">
+        <div class="overlay-box">
+          <h2 id="mp-result-title">對戰結束</h2>
+          <p id="mp-result-msg"></p>
+          <div class="overlay-buttons">
+            <button id="mp-btn-to-lobby" class="btn-primary">🔗 重新連線</button>
+            <button id="mp-btn-edit" class="btn-secondary">🧩 改進代碼</button>
+            <button id="mp-btn-to-title" class="btn-secondary">🏠 標題畫面</button>
           </div>
         </div>
       </div>
