@@ -1,9 +1,16 @@
-import { ACTION_DEFS } from '../utils/BlocklyConfig.js';
+import { ACTION_DEFS, executeProgram } from '../utils/BlocklyConfig.js';
 
 /**
  * Hero – player-controlled character.
  * Charge-to-action mechanic: charge fills over time; when it reaches
- * chargeRequired for the current block, the action fires and charge resets.
+ * chargeRequired for the current block-action the action fires and
+ * charge resets.  The action sequence is driven by a generator that
+ * walks the Blockly AST (supports repeat + if/else with HP conditions).
+ *
+ * Look-ahead design: the generator is advanced right after each action
+ * fires, so chargeRequired is always correct for the NEXT pending action.
+ * IF conditions are evaluated at that advance-point (end of the previous
+ * action), which is accurate enough for this game's timing.
  */
 export class Hero {
   constructor() {
@@ -15,9 +22,18 @@ export class Hero {
     /** units of charge gained per second */
     this.chargeRate = 40;
 
-    /** Sequence of action keys from Blockly */
-    this.actions      = ['hero_attack'];
-    this.actionIndex  = 0;
+    /** Program AST from Blockly (array of nodes) */
+    this.program = ['hero_attack'];
+
+    /** Generator that yields the next action key */
+    this._gen = null;
+    /**
+     * The next action key to execute (pre-fetched so chargeRequired
+     * can be set in advance for the charge bar to display correctly).
+     */
+    this._pendingAction = 'hero_attack';
+    /** Current enemy reference – kept current so IF conditions can read live HP. */
+    this._currentEnemy  = null;
 
     /** Current charge amount (0 → chargeRequired) */
     this.currentCharge   = 0;
@@ -34,21 +50,56 @@ export class Hero {
     this.hurtTimer   = 0;
   }
 
-  /** Replace action sequence (call before battle start). */
+  /** Replace action sequence with a flat array (backward compat). */
   setActions(actions) {
-    this.actions          = (actions && actions.length > 0) ? actions : ['hero_attack'];
-    this.actionIndex      = 0;
-    this.currentCharge    = 0;
-    this._syncChargeRequired();
+    this.setProgram((actions && actions.length > 0) ? actions : ['hero_attack']);
   }
 
-  _syncChargeRequired() {
-    const def = ACTION_DEFS[this.actions[this.actionIndex % this.actions.length]];
+  /** Replace the program AST (call before battle start). */
+  setProgram(program) {
+    this.program        = (program && program.length > 0) ? program : ['hero_attack'];
+    this._gen           = null;
+    this._currentEnemy  = null;
+    this.currentCharge  = 0;
+    this._advanceGen();  // pre-fetch first action
+  }
+
+  /** Build a fresh generator over this.program. */
+  _createGen() {
+    const hero = this;
+    return executeProgram(this.program, () => ({
+      heroHp:      hero.hp,
+      heroMaxHp:   hero.maxHp,
+      heroHpPct:   (hero.hp / hero.maxHp) * 100,
+      enemyHp:     hero._currentEnemy?.hp     ?? 0,
+      enemyMaxHp:  hero._currentEnemy?.maxHp  ?? 1,
+      enemyHpPct:  hero._currentEnemy
+                     ? (hero._currentEnemy.hp / hero._currentEnemy.maxHp) * 100
+                     : 100,
+    }));
+  }
+
+  /**
+   * Advance the generator by one step, storing the result in
+   * _pendingAction and updating chargeRequired accordingly.
+   * Restarts the generator if it has been exhausted.
+   */
+  _advanceGen() {
+    if (!this._gen) this._gen = this._createGen();
+    let result = this._gen.next();
+    if (result.done) {
+      this._gen  = this._createGen();
+      result     = this._gen.next();
+    }
+    const key = result.done ? 'hero_attack' : (result.value || 'hero_attack');
+    this._pendingAction = key;
+    const def = ACTION_DEFS[key];
     this.chargeRequired = def ? def.chargeRequired : 50;
   }
 
+  /** Returns the pending (next-to-fire) action key (used for the UI label). */
   getCurrentAction() {
-    return this.actions[this.actionIndex % this.actions.length];
+    return this._pendingAction;
   }
 
   /** Advance charge by dt seconds. */
@@ -64,12 +115,14 @@ export class Hero {
     return this.currentCharge >= this.chargeRequired;
   }
 
-  /** Fire the current action; returns a result descriptor. */
+  /** Fire the pending action; returns a result descriptor. */
   executeAction(enemy) {
-    const actionKey = this.getCurrentAction();
-    this.currentCharge  = 0;
-    this.isAttacking    = true;
-    this.attackTimer    = 0.4;
+    this._currentEnemy  = enemy;
+    const actionKey     = this._pendingAction;
+
+    this.currentCharge = 0;
+    this.isAttacking   = true;
+    this.attackTimer   = 0.4;
 
     const result = { actionKey, actor: 'hero', type: 'misc', message: '' };
 
@@ -117,9 +170,8 @@ export class Hero {
         result.message = '英雄行動…';
     }
 
-    // Advance action pointer
-    this.actionIndex = (this.actionIndex + 1) % this.actions.length;
-    this._syncChargeRequired();
+    // Pre-fetch the next action so chargeRequired is ready immediately
+    this._advanceGen();
 
     return result;
   }

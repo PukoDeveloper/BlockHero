@@ -1,7 +1,7 @@
 import { Hero }   from '../entities/Hero.js';
 import { Enemy }  from '../entities/Enemy.js';
 import { Storage } from '../utils/Storage.js';
-import { ACTION_DEFS, getActionSequenceFromXml } from '../utils/BlocklyConfig.js';
+import { ACTION_DEFS, getActionProgramFromXml } from '../utils/BlocklyConfig.js';
 
 const LOG_MAX = 30;
 /** Fraction of maxHp the hero recovers between waves. */
@@ -339,10 +339,10 @@ export class BattleScene {
 
     // Get action sequence from saved workspace
     const xml     = Storage.loadWorkspaceXml();
-    const actions = getActionSequenceFromXml(xml);
+    const program = getActionProgramFromXml(xml);
 
     this.hero = new Hero();
-    this.hero.setActions(actions);
+    this.hero.setProgram(program);
 
     this.enemy = new Enemy(this.wave);
 
