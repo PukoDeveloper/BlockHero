@@ -54,8 +54,8 @@ export const ACTION_DEFS = {
     label:         '🧊 冰凍打擊',
     color:         200,
     chipColor:     '#5dade2',
-    chargeRequired: 65,
-    description:   '造成普通傷害並凍結敵人（減速 70%）持續 3 秒（集氣：65）',
+    chargeRequired: 90,
+    description:   '造成普通傷害並凍結敵人（減速 70%）持續 3 秒（集氣：90）',
   },
   hero_fire_attack: {
     label:         '🔥 火焰攻擊',
