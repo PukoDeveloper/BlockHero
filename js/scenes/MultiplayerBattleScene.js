@@ -285,11 +285,6 @@ export class MultiplayerBattleScene {
 
     const bodyColor = opp.isDefending ? 0xc0392b : 0xe05020;
 
-    if (opp.isDefending) {
-      g.lineStyle(3, 0xf5a623, 0.7 + 0.3 * Math.sin(Date.now() / 150));
-      g.drawCircle(ox, oy - S * 0.7, S * 0.85);
-    }
-
     g.lineStyle(0);
     g.beginFill(0x4a2c2a);
     g.drawRect(ox - S * 0.28, oy - S * 0.38, S * 0.22, S * 0.38);
@@ -366,17 +361,21 @@ export class MultiplayerBattleScene {
      ================================================================ */
   _send(msg) {
     if (this.conn && this.conn.open) {
-      try { this.conn.send(msg); } catch (_) {}
+      try { this.conn.send(msg); } catch (e) { console.warn('[MpBattle] send error', e); }
     }
   }
 
   _onData(msg) {
     if (!this.running) return;
+    // Validate that msg is a plain object from the peer
+    if (!msg || typeof msg !== 'object') return;
 
     switch (msg.type) {
       case 'hit': {
         // Opponent attacked me – apply damage directly (bypassing def, already factored)
-        const dmg = Math.max(1, msg.dmg);
+        const raw = Number(msg.dmg);
+        if (!Number.isFinite(raw)) return;
+        const dmg = Math.max(1, Math.min(raw, this.myHero.maxHp)); // clamp to sane range
         this.myHero.hp        = Math.max(0, this.myHero.hp - dmg);
         this.myHero.isHurt    = true;
         this.myHero.hurtTimer = 0.3;
@@ -392,10 +391,9 @@ export class MultiplayerBattleScene {
       }
       case 'hp_sync': {
         // Correct the opponent proxy's HP (peer sends their own HP)
-        if (typeof msg.hp === 'number') {
-          this.opponentProxy.hp    = Math.max(0, msg.hp);
-          this.opponentProxy.maxHp = Math.max(this.opponentProxy.maxHp, msg.hp);
-        }
+        const syncedHp = Number(msg.hp);
+        if (!Number.isFinite(syncedHp)) return;
+        this.opponentProxy.hp    = Math.max(0, Math.min(syncedHp, this.opponentProxy.maxHp));
         break;
       }
       case 'defend': {
@@ -616,7 +614,7 @@ export class MultiplayerBattleScene {
     this.running = false;
     // Clear any stale data listeners from old connections
     if (this.conn) {
-      try { this.conn.removeAllListeners?.('data'); } catch (_) {}
+      try { this.conn.removeAllListeners?.('data'); } catch (e) { console.warn('[MpBattle] removeListeners error', e); }
     }
     this.conn = null;
   }

@@ -85,11 +85,11 @@ class Game {
   /** Tear down the active multiplayer peer/connection. */
   _closeMpConnection() {
     if (this._mpConn) {
-      try { this._mpConn.close(); } catch (_) {}
+      try { this._mpConn.close(); } catch (e) { console.warn('[Game] mpConn.close error', e); }
       this._mpConn = null;
     }
     if (this._mpPeer) {
-      try { this._mpPeer.destroy(); } catch (_) {}
+      try { this._mpPeer.destroy(); } catch (e) { console.warn('[Game] mpPeer.destroy error', e); }
       this._mpPeer = null;
     }
   }

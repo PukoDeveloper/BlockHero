@@ -123,8 +123,17 @@ export class PeerLobbyScene {
   }
 
   _cleanup() {
-    if (this.conn) { try { this.conn.close(); } catch (_) {} this.conn = null; }
-    if (this.peer) { try { this.peer.destroy(); } catch (_) {} this.peer = null; }
+    // Note: game._mpPeer / game._mpConn hold the same objects when in battle,
+    // but before goToMpBattle() is called only this.peer / this.conn exist.
+    // Both are cleaned up here so the lobby is self-sufficient on back-navigation.
+    if (this.conn) {
+      try { this.conn.close(); } catch (e) { console.warn('[PeerLobby] conn.close error', e); }
+      this.conn = null;
+    }
+    if (this.peer) {
+      try { this.peer.destroy(); } catch (e) { console.warn('[PeerLobby] peer.destroy error', e); }
+      this.peer = null;
+    }
   }
 
   /* ------------------------------------------------------------------ */
