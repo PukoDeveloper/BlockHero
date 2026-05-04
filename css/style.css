@@ -343,13 +343,15 @@ html, body {
 
 /* Battle log */
 #battle-log {
-  max-height: 22vh;
+  position: absolute;
+  bottom: 46px;
+  left: 0;
+  right: 0;
+  height: 12vh;
   background: var(--bg-panel);
   border-radius: 8px;
   border: 1px solid var(--border);
   overflow: hidden;
-  position: relative;
-  min-height: 0;
 }
 
 #battle-log-inner {
@@ -378,6 +380,10 @@ html, body {
 
 /* Battle controls */
 #battle-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   gap: 8px;
   justify-content: center;
@@ -673,13 +679,15 @@ html, body {
 #mp-opp-status   { border-color: rgba(231, 76, 60, 0.3); }
 
 #mp-battle-log {
-  max-height: 22vh;
+  position: absolute;
+  bottom: 46px;
+  left: 0;
+  right: 0;
+  height: 12vh;
   background: var(--bg-panel);
   border-radius: 8px;
   border: 1px solid var(--border);
   overflow: hidden;
-  position: relative;
-  min-height: 0;
 }
 
 #mp-battle-log-inner {
@@ -693,6 +701,10 @@ html, body {
 }
 
 #mp-battle-controls {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   gap: 8px;
   justify-content: center;
