@@ -39,9 +39,19 @@ export class Enemy {
     this.hp        = this.maxHp;
     this.atk       = Math.floor(t.baseAtk * a);
     this.def       = Math.floor(t.baseDef * (1 + (wave - 1) * DEF_SCALE_PER_WAVE));
-    this.chargeRate = t.baseRate * r;   // units per second (reaches 100 = attack)
+    this._baseChargeRate = t.baseRate * r;
+    this.chargeRate      = this._baseChargeRate;  // units per second (reaches 100 = attack)
 
     this.currentCharge = 0;
+
+    // Elemental status effects
+    this.isFrozen    = false;
+    this.frozenTimer = 0;
+
+    this.isBurning  = false;
+    this.burnTimer  = 0;
+    this.burnDps    = 0;
+    this._burnAccum = 0;
 
     // Visual flags
     this.isAttacking = false;
@@ -51,9 +61,55 @@ export class Enemy {
   }
 
   update(dt) {
+    // Freeze: slow enemy charge rate
+    if (this.isFrozen) {
+      this.frozenTimer -= dt;
+      if (this.frozenTimer <= 0) {
+        this.isFrozen   = false;
+        this.chargeRate = this._baseChargeRate;
+      }
+    }
+
+    // Burn: deal damage over time
+    let burnDmg = 0;
+    if (this.isBurning) {
+      this.burnTimer -= dt;
+      if (this.burnTimer <= 0) {
+        this.isBurning  = false;
+        this.burnDps    = 0;
+        this._burnAccum = 0;
+      } else {
+        this._burnAccum += this.burnDps * dt;
+        burnDmg = Math.floor(this._burnAccum);
+        if (burnDmg > 0) {
+          this._burnAccum -= burnDmg;
+          this.hp = Math.max(0, this.hp - burnDmg);
+          this.isHurt    = true;
+          this.hurtTimer = 0.15;
+        }
+      }
+    }
+
     this.currentCharge = Math.min(100, this.currentCharge + this.chargeRate * dt);
     if (this.isAttacking && (this.attackTimer -= dt) <= 0) this.isAttacking = false;
     if (this.isHurt      && (this.hurtTimer  -= dt) <= 0) this.isHurt      = false;
+
+    return { burnDmg };
+  }
+
+  /** Apply a freeze effect (slows chargeRate). Safe to call while already frozen. */
+  applyFreeze(duration, rateMult) {
+    this.isFrozen    = true;
+    this.frozenTimer = duration;
+    this.chargeRate  = this._baseChargeRate * rateMult;
+  }
+
+  /** Apply a burn-over-time effect. Refreshes duration/dps; preserves accumulated partial damage. */
+  applyBurn(duration, dps) {
+    if (!this.isBurning) this._burnAccum = 0;  // reset accumulator only if not already burning (preserve on re-application)
+    this.isBurning = true;
+    this.burnTimer = duration;
+    this.burnDps   = dps;
   }
 
   isCharged() { return this.currentCharge >= 100; }
@@ -64,12 +120,13 @@ export class Enemy {
     this.isAttacking    = true;
     this.attackTimer    = 0.4;
 
-    const dmg = hero.takeDamage(this.atk);
+    const { dmg, wasDefended, blockedAmount } = hero.takeDamage(this.atk);
+    const suffix = wasDefended ? `（英雄格擋！減少 ${blockedAmount} 傷害）` : '';
     return {
       actor:   'enemy',
       type:    'damage',
       value:   dmg,
-      message: `${this.name} 攻擊英雄，造成 ${dmg} 傷害！`,
+      message: `${this.name} 攻擊英雄，造成 ${dmg} 傷害！${suffix}`,
     };
   }
 

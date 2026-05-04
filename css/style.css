@@ -332,6 +332,16 @@ html, body {
   margin-top: 3px;
 }
 
+.status-effects {
+  font-size: 11px;
+  color: var(--accent-gold);
+  min-height: 14px;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* Battle log */
 #battle-log {
   flex: 1;
@@ -360,11 +370,13 @@ html, body {
   animation: fadeIn 0.3s ease;
 }
 
-.log-hero   { color: #5dade2; }
-.log-enemy  { color: #e74c3c; }
-.log-wave   { color: var(--accent-gold); font-weight: bold; }
-.log-system { color: var(--text-muted); }
-.log-heal   { color: var(--accent-green); }
+.log-hero    { color: #5dade2; }
+.log-enemy   { color: #e74c3c; }
+.log-wave    { color: var(--accent-gold); font-weight: bold; }
+.log-system  { color: var(--text-muted); }
+.log-heal    { color: var(--accent-green); }
+.log-buff    { color: #f39c12; }
+.log-element { color: #a29bfe; }
 
 /* Battle controls */
 #battle-controls {

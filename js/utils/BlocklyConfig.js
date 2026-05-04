@@ -34,7 +34,7 @@ export const ACTION_DEFS = {
     color:         210,
     chipColor:     '#2980b9',
     chargeRequired: 30,
-    description:   '使下次受到的傷害減半（集氣：30）',
+    description:   '接下來 3 次受到的傷害減少 50%（集氣：30）',
   },
   hero_heal: {
     label:         '💊 治療',
@@ -42,6 +42,34 @@ export const ACTION_DEFS = {
     chipColor:     '#27ae60',
     chargeRequired: 80,
     description:   '恢復 20% 最大 HP（集氣：80）',
+  },
+  hero_speed_boost: {
+    label:         '⚡ 快速充能',
+    color:         55,
+    chipColor:     '#f39c12',
+    chargeRequired: 40,
+    description:   '攻擊速度提升 2.5 倍，持續 5 秒（集氣：40）',
+  },
+  hero_ice_attack: {
+    label:         '🧊 冰凍打擊',
+    color:         200,
+    chipColor:     '#5dade2',
+    chargeRequired: 65,
+    description:   '造成普通傷害並凍結敵人（減速 70%）持續 3 秒（集氣：65）',
+  },
+  hero_fire_attack: {
+    label:         '🔥 火焰攻擊',
+    color:         20,
+    chipColor:     '#e74c3c',
+    chargeRequired: 60,
+    description:   '造成傷害並燃燒敵人（持續 DoT）4 秒（集氣：60）',
+  },
+  hero_thunder_attack: {
+    label:         '🌩️ 雷電打擊',
+    color:         45,
+    chipColor:     '#f1c40f',
+    chargeRequired: 85,
+    description:   '穿透防禦，造成 1.8× 傷害（集氣：85）',
   },
 };
 
@@ -96,6 +124,12 @@ export const TOOLBOX_XML = `
   </category>
   <category name="💊 輔助" colour="120">
     <block type="hero_heal"></block>
+    <block type="hero_speed_boost"></block>
+  </category>
+  <category name="🌟 元素攻擊" colour="200">
+    <block type="hero_ice_attack"></block>
+    <block type="hero_fire_attack"></block>
+    <block type="hero_thunder_attack"></block>
   </category>
   <category name="🔢 數值" colour="160">
     <block type="get_character_stat">
