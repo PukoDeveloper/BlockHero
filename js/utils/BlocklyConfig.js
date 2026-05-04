@@ -364,7 +364,6 @@ function _parseConditionFromEl(el) {
   if (!el || el.getAttribute('type') !== 'logic_compare') return null;
   const opEl  = el.querySelector(':scope > field[name="OP"]');
   const op    = opEl?.textContent || 'EQ';
-  // Blockly saves unreplaced shadow inputs as <shadow>, not <block>; check both.
   const aEl   = el.querySelector(':scope > value[name="A"] > block')
              || el.querySelector(':scope > value[name="A"] > shadow');
   const bEl   = el.querySelector(':scope > value[name="B"] > block')
@@ -446,6 +445,11 @@ export function getActionSequenceFromWorkspace(workspace) {
 
 /* ------------------------------------------------------------------
    XML-based program parser (used in BattleScene – no live Blockly needed)
+
+   NOTE: Blockly saves any unreplaced shadow (placeholder) inputs as
+   <shadow> elements in workspace XML rather than <block> elements.
+   Every querySelector that reads sub-block values must therefore fall
+   back to <shadow> when no <block> is present.
    ------------------------------------------------------------------ */
 
 /**
@@ -459,7 +463,6 @@ function _processChainToProgram(el, out) {
     out.push(type);
 
   } else if (type === 'controls_repeat_ext') {
-    // Blockly saves unreplaced shadow inputs as <shadow>; check both block and shadow.
     const numEl = el.querySelector(':scope > value[name="TIMES"] > block[type="math_number"] > field[name="NUM"]')
                || el.querySelector(':scope > value[name="TIMES"] > shadow[type="math_number"] > field[name="NUM"]');
     const times = numEl
@@ -470,7 +473,6 @@ function _processChainToProgram(el, out) {
     out.push({ type: 'repeat', times, body });
 
   } else if (type === 'controls_if') {
-    // Blockly saves unreplaced shadow inputs as <shadow>; check both block and shadow.
     const condEl    = el.querySelector(':scope > value[name="IF0"] > block')
                    || el.querySelector(':scope > value[name="IF0"] > shadow');
     const condition = _parseConditionFromEl(condEl);
