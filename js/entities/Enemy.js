@@ -13,6 +13,12 @@ const ENEMY_TYPES = [
   { name: '龍',   icon: '🐉', color: 0xe74c3c, baseHp: 280, baseAtk: 35, baseDef: 12, baseRate: 16 },
 ];
 
+/** Per-wave scaling constants for enemy stat growth. */
+const HP_SCALE_PER_WAVE   = 0.30;
+const ATK_SCALE_PER_WAVE  = 0.18;
+const RATE_SCALE_PER_WAVE = 0.04;
+const DEF_SCALE_PER_WAVE  = 0.07;
+
 export class Enemy {
   /**
    * @param {number} wave  1-based wave number
@@ -20,9 +26,9 @@ export class Enemy {
   constructor(wave) {
     const typeIndex = Math.min(Math.floor((wave - 1) / 2), ENEMY_TYPES.length - 1);
     const t = ENEMY_TYPES[typeIndex];
-    const m = 1 + (wave - 1) * 0.3;   // hp   multiplier per wave
-    const a = 1 + (wave - 1) * 0.18;  // atk  multiplier
-    const r = 1 + (wave - 1) * 0.04;  // rate multiplier (enemies speed up)
+    const m = 1 + (wave - 1) * HP_SCALE_PER_WAVE;
+    const a = 1 + (wave - 1) * ATK_SCALE_PER_WAVE;
+    const r = 1 + (wave - 1) * RATE_SCALE_PER_WAVE;
 
     this.wave  = wave;
     this.name  = t.name;
@@ -32,7 +38,7 @@ export class Enemy {
     this.maxHp     = Math.floor(t.baseHp  * m);
     this.hp        = this.maxHp;
     this.atk       = Math.floor(t.baseAtk * a);
-    this.def       = Math.floor(t.baseDef * (1 + (wave - 1) * 0.07));
+    this.def       = Math.floor(t.baseDef * (1 + (wave - 1) * DEF_SCALE_PER_WAVE));
     this.chargeRate = t.baseRate * r;   // units per second (reaches 100 = attack)
 
     this.currentCharge = 0;

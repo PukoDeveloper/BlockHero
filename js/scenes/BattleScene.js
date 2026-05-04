@@ -4,6 +4,8 @@ import { Storage } from '../utils/Storage.js';
 import { ACTION_DEFS, getActionSequenceFromXml } from '../utils/BlocklyConfig.js';
 
 const LOG_MAX = 30;
+/** Fraction of maxHp the hero recovers between waves. */
+const WAVE_REGEN_PERCENT = 0.10;
 
 /**
  * BattleScene – Endless-mode battle screen.
@@ -365,7 +367,7 @@ export class BattleScene {
       this.enemy = new Enemy(this.wave);
 
       // Small HP recovery between waves (10 % of max)
-      const regen = Math.floor(this.hero.maxHp * 0.1);
+      const regen = Math.floor(this.hero.maxHp * WAVE_REGEN_PERCENT);
       this.hero.hp = Math.min(this.hero.maxHp, this.hero.hp + regen);
       if (regen > 0) {
         this._log(`💚 波次間回復 ${regen} HP。`, 'log-heal');

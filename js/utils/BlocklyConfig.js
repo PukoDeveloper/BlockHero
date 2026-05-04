@@ -47,6 +47,9 @@ export const ACTION_DEFS = {
 /** Valid action block types as a Set for fast lookup. */
 const VALID_ACTIONS = new Set(Object.keys(ACTION_DEFS));
 
+/** Maximum number of iterations the repeat block is allowed to unroll. */
+const MAX_REPEAT_COUNT = 20;
+
 /* ------------------------------------------------------------------
    Toolbox XML (Blockly v9 – XML format still supported)
    ------------------------------------------------------------------ */
@@ -134,7 +137,7 @@ function walkChain(block, out) {
   } else if (type === 'controls_repeat_ext') {
     const timesBlock = block.getInputTargetBlock('TIMES');
     const times = timesBlock
-      ? Math.min(Math.max(1, parseInt(timesBlock.getFieldValue('NUM'), 10) || 1), 20)
+      ? Math.min(Math.max(1, parseInt(timesBlock.getFieldValue('NUM'), 10) || 1), MAX_REPEAT_COUNT)
       : 1;
     const inner = [];
     let b = block.getInputTargetBlock('DO');
@@ -175,7 +178,7 @@ export function getActionSequenceFromXml(xmlString) {
       } else if (type === 'controls_repeat_ext') {
         const numEl = el.querySelector(':scope > value[name="TIMES"] block[type="math_number"] > field[name="NUM"]');
         const times = numEl
-          ? Math.min(Math.max(1, parseInt(numEl.textContent, 10) || 1), 20)
+          ? Math.min(Math.max(1, parseInt(numEl.textContent, 10) || 1), MAX_REPEAT_COUNT)
           : 1;
         const inner = [];
         let b = el.querySelector(':scope > statement[name="DO"] > block');

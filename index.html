@@ -5,9 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>BlockHero 積木英雄</title>
   <link rel="stylesheet" href="css/style.css">
-  <!-- Pixi.js v7 -->
+  <!-- Pixi.js v7 – rendering engine
+       NOTE: For production deployments add integrity="sha384-..." crossorigin="anonymous"
+             after computing the hash of the exact CDN file, e.g. via:
+             openssl dgst -sha384 -binary <file> | openssl base64 -A  -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.4.2/pixi.min.js"></script>
-  <!-- Blockly -->
+  <!-- Blockly v9 – visual block programming
+       NOTE: Same SRI recommendation as above. -->
   <script src="https://unpkg.com/blockly@9.3.3/blockly.min.js"></script>
 </head>
 <body>
