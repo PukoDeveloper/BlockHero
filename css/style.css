@@ -200,7 +200,6 @@ html, body {
    ============================================= */
 #battle-screen {
   background: #0d0d1a;
-  position: relative;
 }
 
 #battle-canvas {
