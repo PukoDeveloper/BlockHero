@@ -50,6 +50,8 @@ export class PeerLobbyScene {
         this._setStatus('❌ 連線已中斷，請重新連線。');
         return;
       }
+      // Notify the peer to start the battle as well
+      try { this.conn.send({ type: 'start_battle' }); } catch (e) { console.warn('[PeerLobby] send start_battle error', e); }
       this.game.goToMpBattle(this.peer, this.conn);
     });
 
@@ -109,6 +111,15 @@ export class PeerLobbyScene {
     conn.on('open', () => {
       this._setStatus(`✅ 已連線至對手！按「開始對戰」啟動。`);
       document.getElementById('lobby-ready-section').classList.remove('hidden');
+    });
+
+    // Only 'start_battle' is relevant while in the lobby.
+    // All other message types (hit, hp_sync, etc.) are handled by MultiplayerBattleScene.
+    conn.on('data', (msg) => {
+      if (msg && msg.type === 'start_battle') {
+        // The other player started the battle – join automatically
+        this.game.goToMpBattle(this.peer, this.conn);
+      }
     });
 
     conn.on('error', (err) => {
