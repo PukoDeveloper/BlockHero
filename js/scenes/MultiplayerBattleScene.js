@@ -291,6 +291,12 @@ export class MultiplayerBattleScene {
 
     const bodyColor = opp.isDefending ? 0xc0392b : 0xe05020;
 
+    // Attack glow (mirrors enemy charge glow in BattleScene)
+    if (opp.isAttacking) {
+      g.lineStyle(3, 0xe74c3c, 0.7 + 0.3 * Math.sin(Date.now() / 120));
+      g.drawCircle(ox, oy - S * 0.7, S * 0.9);
+    }
+
     g.lineStyle(0);
     g.beginFill(0x4a2c2a);
     g.drawRect(ox - S * 0.28, oy - S * 0.38, S * 0.22, S * 0.38);
@@ -563,8 +569,18 @@ export class MultiplayerBattleScene {
     document.getElementById('mp-opp-hp-text').textContent =
       `${Math.ceil(this.opponentProxy.hp)}/${this.opponentProxy.maxHp}`;
 
+    // Opponent charge bar – fill when opponent is about to attack, empty otherwise
+    document.getElementById('mp-opp-charge-bar').style.width =
+      this.opponentProxy.isAttacking ? '100%' : '0%';
+
     document.getElementById('mp-opp-action-label').textContent =
-      this.opponentProxy.isDefending ? '🛡️ 防禦中' : '';
+      this.opponentProxy.isAttacking ? '⚡ 即將攻擊！'
+      : this.opponentProxy.isDefending ? '🛡️ 防禦中' : '';
+
+    // Opponent status effects
+    const oppEffects = [];
+    if (this.opponentProxy.isDefending) oppEffects.push('🛡️ 防禦中');
+    document.getElementById('mp-opp-status-effects').textContent = oppEffects.join('  ');
   }
 
   /* ================================================================
