@@ -343,8 +343,7 @@ html, body {
 
 /* Battle log */
 #battle-log {
-  flex: 1;
-  max-height: 30vh;
+  max-height: 22vh;
   background: var(--bg-panel);
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -384,6 +383,13 @@ html, body {
   justify-content: center;
   pointer-events: all;
   padding-bottom: 4px;
+}
+
+/* Spacer that lets canvas show through */
+.battle-spacer {
+  flex: 1;
+  min-height: 0;
+  pointer-events: none;
 }
 
 /* =============================================
@@ -667,8 +673,7 @@ html, body {
 #mp-opp-status   { border-color: rgba(231, 76, 60, 0.3); }
 
 #mp-battle-log {
-  flex: 1;
-  max-height: 30vh;
+  max-height: 22vh;
   background: var(--bg-panel);
   border-radius: 8px;
   border: 1px solid var(--border);
