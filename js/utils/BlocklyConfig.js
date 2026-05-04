@@ -34,7 +34,7 @@ export const ACTION_DEFS = {
     color:         210,
     chipColor:     '#2980b9',
     chargeRequired: 30,
-    description:   '使下次受到的傷害減半（集氣：30）',
+    description:   '接下來 3 次受到的傷害減少 50%（集氣：30）',
   },
   hero_heal: {
     label:         '💊 治療',
@@ -42,6 +42,13 @@ export const ACTION_DEFS = {
     chipColor:     '#27ae60',
     chargeRequired: 80,
     description:   '恢復 20% 最大 HP（集氣：80）',
+  },
+  hero_speed_boost: {
+    label:         '⚡ 快速充能',
+    color:         55,
+    chipColor:     '#f39c12',
+    chargeRequired: 40,
+    description:   '攻擊速度提升 2.5 倍，持續 5 秒（集氣：40）',
   },
 };
 
@@ -96,6 +103,7 @@ export const TOOLBOX_XML = `
   </category>
   <category name="💊 輔助" colour="120">
     <block type="hero_heal"></block>
+    <block type="hero_speed_boost"></block>
   </category>
   <category name="🔢 數值" colour="160">
     <block type="get_character_stat">

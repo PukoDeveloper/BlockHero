@@ -169,6 +169,12 @@ export class BattleScene {
       g.drawCircle(ox, oy - S * 0.7, S * 0.85);
     }
 
+    // Speed boost lightning glow
+    if (hero.isSpeedBoosted) {
+      g.lineStyle(4, 0xf39c12, 0.55 + 0.45 * Math.sin(Date.now() / 70));
+      g.drawCircle(ox, oy - S * 0.7, S * 1.08);
+    }
+
     // Legs
     g.lineStyle(0);
     g.beginFill(0x2c3e50);
@@ -401,7 +407,9 @@ export class BattleScene {
     // Hero action
     if (this.hero.isCharged() && !this.spawning && this.enemy.isAlive()) {
       const res = this.hero.executeAction(this.enemy);
-      const cls = res.type === 'heal' ? 'log-heal' : 'log-hero';
+      const cls = res.type === 'heal' ? 'log-heal'
+                : (res.type === 'defend' || res.type === 'speed_boost') ? 'log-buff'
+                : 'log-hero';
       this._log(res.message, cls);
 
       if (res.type === 'damage') {
@@ -459,6 +467,12 @@ export class BattleScene {
     const actionDef = ACTION_DEFS[this.hero.getCurrentAction()];
     document.getElementById('hero-action-label').textContent =
       actionDef ? `準備：${actionDef.label}` : '';
+
+    // Hero status effects
+    const effects = [];
+    if (this.hero.isDefending)    effects.push(`🛡️ 防禦中（${this.hero.defendStacks}次）`);
+    if (this.hero.isSpeedBoosted) effects.push(`⚡ 快速充能（${Math.ceil(this.hero.speedBoostTimer)}s）`);
+    document.getElementById('hero-status-effects').textContent = effects.join('  ');
 
     // Enemy HP
     const enemyHpPct = this.enemy.getHpPct();

@@ -64,12 +64,13 @@ export class Enemy {
     this.isAttacking    = true;
     this.attackTimer    = 0.4;
 
-    const dmg = hero.takeDamage(this.atk);
+    const { dmg, wasDefended, blockedAmount } = hero.takeDamage(this.atk);
+    const suffix = wasDefended ? `（英雄格擋！減少 ${blockedAmount} 傷害）` : '';
     return {
       actor:   'enemy',
       type:    'damage',
       value:   dmg,
-      message: `${this.name} 攻擊英雄，造成 ${dmg} 傷害！`,
+      message: `${this.name} 攻擊英雄，造成 ${dmg} 傷害！${suffix}`,
     };
   }
 

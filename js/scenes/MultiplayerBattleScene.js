@@ -226,6 +226,12 @@ export class MultiplayerBattleScene {
       g.drawCircle(ox, oy - S * 0.7, S * 0.85);
     }
 
+    // Speed boost lightning glow
+    if (hero.isSpeedBoosted) {
+      g.lineStyle(4, 0xf39c12, 0.55 + 0.45 * Math.sin(Date.now() / 70));
+      g.drawCircle(ox, oy - S * 0.7, S * 1.08);
+    }
+
     g.lineStyle(0);
     g.beginFill(0x2c3e50);
     g.drawRect(ox - S * 0.28, oy - S * 0.38, S * 0.22, S * 0.38);
@@ -495,8 +501,10 @@ export class MultiplayerBattleScene {
         // Sync our HP after healing
         this._send({ type: 'hp_sync', hp: this.myHero.hp });
       } else if (res.type === 'defend') {
-        this._log(res.message, 'log-hero');
+        this._log(res.message, 'log-buff');
         this._send({ type: 'defend' });
+      } else if (res.type === 'speed_boost') {
+        this._log(res.message, 'log-buff');
       }
     }
 
@@ -537,6 +545,12 @@ export class MultiplayerBattleScene {
     const actionDef = ACTION_DEFS[this.myHero.getCurrentAction()];
     document.getElementById('mp-hero-action-label').textContent =
       actionDef ? `準備：${actionDef.label}` : '';
+
+    // My hero status effects
+    const effects = [];
+    if (this.myHero.isDefending)    effects.push(`🛡️ 防禦中（${this.myHero.defendStacks}次）`);
+    if (this.myHero.isSpeedBoosted) effects.push(`⚡ 快速充能（${Math.ceil(this.myHero.speedBoostTimer)}s）`);
+    document.getElementById('mp-hero-status-effects').textContent = effects.join('  ');
 
     // Opponent HP
     const oppHpPct = this.opponentProxy.getHpPct();
