@@ -574,8 +574,7 @@ export class MultiplayerBattleScene {
       this.opponentProxy.isAttacking ? '100%' : '0%';
 
     document.getElementById('mp-opp-action-label').textContent =
-      this.opponentProxy.isAttacking ? '⚡ 即將攻擊！'
-      : this.opponentProxy.isDefending ? '🛡️ 防禦中' : '';
+      this.opponentProxy.isAttacking ? '⚡ 即將攻擊！' : '';
 
     // Opponent status effects
     const oppEffects = [];
