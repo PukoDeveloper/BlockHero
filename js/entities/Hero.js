@@ -71,11 +71,15 @@ export class Hero {
       heroHp:      hero.hp,
       heroMaxHp:   hero.maxHp,
       heroHpPct:   hero.maxHp > 0 ? (hero.hp / hero.maxHp) * 100 : 0,
+      heroAtk:     hero.atk,
+      heroDef:     hero.def,
       enemyHp:     hero._currentEnemy?.hp     ?? 0,
       enemyMaxHp:  hero._currentEnemy?.maxHp  ?? 1,
       enemyHpPct:  (hero._currentEnemy && hero._currentEnemy.maxHp > 0)
                      ? (hero._currentEnemy.hp / hero._currentEnemy.maxHp) * 100
                      : 100,
+      enemyAtk:    hero._currentEnemy?.atk ?? 0,
+      enemyDef:    hero._currentEnemy?.def ?? 0,
     }));
   }
 
